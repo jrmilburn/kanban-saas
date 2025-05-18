@@ -14,17 +14,80 @@ datasource db {
 }
 
 model User {
-  id        String      @id @default(cuid())
-  email     String      @unique
-  WorkSpace WorkSpace[]
+  id             String    @id @default(cuid())
+  name           String?
+  email          String?   @unique
+  emailVerified  DateTime?
+  image          String?
+
+  accounts       Account[]
+  sessions       Session[]
+
+  memberships    WorkspaceMember[]
+}
+
+model Account {
+  id                 String   @id @default(cuid())
+  userId             String
+  provider           String
+  providerAccountId  String
+  type               String
+  access_token       String?  @map("accessToken")
+  expires_at         Int?     @map("expiresAt")
+  refresh_token      String?  @map("refreshToken")
+  scope              String?
+  token_type         String?
+  id_token           String?  @map("idToken")
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  expires      DateTime
+  sessionToken String   @unique
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
 
 model WorkSpace {
-  id      String  @id @default(cuid())
-  name    String
-  owner   User?   @relation(fields: [ownerId], references: [id])
-  ownerId String
-  Board   Board[]
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  // relations
+  members   WorkspaceMember[]
+  boards    Board[]
+}
+
+model WorkspaceMember {
+  id          String   @id @default(cuid())
+  userId      String
+  workspaceId String
+  role        Role     @default(MEMBER)
+
+  user      User      @relation(fields: [userId], references: [id])
+  workspace WorkSpace @relation(fields: [workspaceId], references: [id])
+
+  @@unique([userId, workspaceId])  // stops duplicate memberships
+}
+
+enum Role {
+  OWNER
+  MEMBER
+  VIEWER
 }
 
 model Board {
