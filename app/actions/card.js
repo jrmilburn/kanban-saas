@@ -1,6 +1,10 @@
 'use server'
 
 import { prisma } from "../../lib/prisma"
+import { getServerSession } from "next-auth"
+import { authOptions } from "../api/auth/[...nextauth]/route"
+import { redirect } from "next/navigation"
+import { revalidatePath } from "next/cache"
 
 export async function moveCard({ cardId, destColumnId, newOrder }) {
     await prisma.$transaction([
@@ -20,23 +24,42 @@ export async function moveCard({ cardId, destColumnId, newOrder }) {
 }
 
 export async function createCard({ columnId, title }) {
-    const column = await prisma.column.findUnique({
-        where: {
-            id: columnId
-        },
-        select: {
-            Card: true
-        }
+  const session = await getServerSession(authOptions)
+  if (!session) redirect('/login');
+
+  const order = await prisma.card.count({ where: { columnId } })
+  const card = await prisma.card.create({
+    data: { title, columnId, order },
+  })
+  revalidatePath(`/board`)
+  return card
+}
+
+export async function renameCard({ cardId, newTitle }) {
+
+    const session = await getServerSession(authOptions);
+    if(!session) redirect('/login');
+
+    const updatedCard = await prisma.card.update({
+        where: { id: cardId },
+        data: { title: newTitle }
     })
 
-    const cardCount = column.Card.length;
-    
-    await prisma.card.create({
-        data: {
-            columnId: columnId,
-            title: title,
-            order: cardCount
-        }
+    revalidatePath('/board');
+    return updatedCard;
+
+}
+
+export async function deleteCard({ cardId }) {
+
+    const session = getServerSession(authOptions);
+    if(!session) redirect('/login')
+
+    const deletedCard = await prisma.card.delete({
+        where: { id: cardId }
     })
+
+    return deletedCard
+
 }
   

@@ -12,102 +12,13 @@ import {
 } from '@dnd-kit/core'
 import {
   SortableContext,
-  useSortable,
   arrayMove,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
-import { GripVertical } from 'lucide-react'
+import { GripVertical, MoreVerticalIcon } from 'lucide-react'
 import { moveCard, createCard } from '@/app/actions/card'
-
-/* ─────────────── Sortable card ─────────────── */
-
-function SortableCard({ card }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
-    id: card.id,
-    animateLayoutChanges: ({ isSorting }) => isSorting,
-  })
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  }
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className={`mb-2 flex items-start gap-2 rounded bg-white p-2 shadow
-                  transition-transform duration-200 ease-in-out will-change-transform
-                  ${isDragging ? 'opacity-60' : 'opacity-100'}`}
-    >
-      <GripVertical className="h-4 w-4 shrink-0 text-gray-400" />
-      <span>{card.title}</span>
-    </div>
-  )
-}
-
-/* ─────────────── Droppable column ─────────────── */
-
-function Column({ column, cards }) {
-  const { setNodeRef, isOver } = useDroppable({
-    id: column.id,
-    data: { columnId: column.id }, // makes columnId available in `over.data.current`
-  })
-
-  const [title, setTitle] = useState('');
-
-  const handleCreate = () => {
-    createCard({ columnId: column.id, title: title})
-  }
-
-  return (
-    <div
-      ref={setNodeRef}
-      className={`w-64 shrink-0 rounded-lg p-3 shadow-inner transition-colors
-                  ${isOver ? 'bg-indigo-50' : 'bg-gray-100'}`}
-    >
-      <h2 className="mb-3 text-sm font-semibold">{column.title}</h2>
-
-      <SortableContext
-        id={column.id}
-        items={cards.map((c) => c.id)}
-        strategy={verticalListSortingStrategy}
-      >
-        {cards.map((card) => (
-          <SortableCard key={card.id} card={card} />
-        ))}
-      </SortableContext>
-
-      {cards.length === 0 && (
-        <p className="rounded bg-gray-200/50 p-2 text-center text-xs text-gray-500">
-          Drop cards here
-        </p>
-      )}
-
-      <form onSubmit={handleCreate} className='flex items-center'>
-        <input
-          className="mb-2 w-full rounded border px-2 py-1 text-sm"
-          placeholder="Add card…"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <button type='submit' className='w-8 h-8 cursor-pointer'>
-          +
-        </button>
-      </form>
-    </div>
-  )
-}
+import Column from './Column'
+import AddColumnDialog from './AddColumn'
 
 /* ─────────────── Board root ─────────────── */
 
@@ -178,6 +89,14 @@ export default function Board({ board }) {
     await moveCard({ cardId: active.id, destColumnId: over.id, newOrder: dstItems.length - 1});
   }
 
+  /* shared helper for optimistic board mutation */
+  const mutateBoard = (mutator) =>
+    setColumns((prev) => {
+      const draft = structuredClone(prev)
+      mutator(draft)
+      return draft
+  })
+
   return (
     <DndContext
       sensors={sensors}
@@ -187,15 +106,20 @@ export default function Board({ board }) {
     >
       <div className="flex gap-4 overflow-x-auto pr-4">
         {board.Column.map((col) => (
-          <Column key={col.id} column={col} cards={columns[col.id]} />
+          <Column key={col.id} column={col} cards={columns[col.id]} setColumns={setColumns} mutateBoard={mutateBoard} />
         ))}
+        <AddColumnDialog boardId={board.id} mutateBoard={mutateBoard} />
       </div>
 
       <DragOverlay dropAnimation={{ duration: 150 }}>
         {activeCard ? (
-          <div className="mb-2 flex items-start gap-2 rounded bg-white p-2 shadow-lg opacity-90">
+          <div className="mb-2 flex items-center justify-between gap-2 rounded bg-white p-2 shadow-lg opacity-90">
+            <div className='flex gap-2 items-center'>
             <GripVertical className="h-4 w-4 shrink-0 text-gray-400" />
             <span>{activeCard.title}</span>
+            </div>
+            <MoreVerticalIcon className='h-4 w-4 shrink-0 text-gray-400' />
+
           </div>
         ) : null}
       </DragOverlay>
