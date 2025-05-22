@@ -24,6 +24,7 @@ import { deleteCard, renameCard } from '@/app/actions/card'   // ← your server
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 
 export default function SortableCard({ card, columnId, mutateBoard }) {
     const router = useRouter();
@@ -47,9 +48,12 @@ export default function SortableCard({ card, columnId, mutateBoard }) {
       })
       try {
         await deleteCard({ cardId: card.id })
+        toast.success(`${card.title} deleted successfully`);
+
       } catch (err) {
         // rollback
         mutateBoard(d => d[columnId].push(card))
+        toast.error(`Error deleting ${card.title}`)
       }
     })
   }
@@ -66,11 +70,13 @@ export default function SortableCard({ card, columnId, mutateBoard }) {
       })
       try {
         await renameCard({ cardId: card.id, newTitle: newTitle })
+        toast.success(`${card.title} renamed successfully`)
       } catch (err) {
         mutateBoard(d => {
           const t = d[columnId].find(c => c.id === card.id)
           if (t) t.title = card.title
         })
+        toast.error(`Error renaming ${card.title}`)
       }
     })
   }

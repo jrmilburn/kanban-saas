@@ -21,6 +21,21 @@ export async function moveCard({ cardId, destColumnId, newOrder }) {
             data: { order: { increment: 1 } }
         })
     ])
+
+    const existing = await prisma.card.findUnique({
+        where: { id: cardId },
+        select: { boardId: true, columnId: true },
+    })
+
+      broadcast(existing.boardId, {
+          type: 'CARD_MOVED',
+          payload: {
+            id: cardId,
+            destColumnId,
+            oldColumnId: existing.columnId,
+            newOrder,
+          },
+        })
 }
 
 export async function createCard({ columnId, title }) {

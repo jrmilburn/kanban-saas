@@ -3,6 +3,8 @@ import NextAuthProvider from '@/lib/SessionProvider'
 import { getServerSession } from 'next-auth'
 import { authOptions } from './api/auth/[...nextauth]/route'
 import SignOut from './signout'
+import { Toaster } from 'sonner'
+import Providers from './providers'
 
 export const metadata = { title: 'Kanban SaaS' }
 
@@ -14,9 +16,15 @@ export default async function RootLayout({ children }) {
 
   return (
     <html lang="en">
-      <body>
-        <NextAuthProvider session={session}>{children}</NextAuthProvider>
-        <SignOut />
+      <body className='w-full h-screen'>
+        
+          <NextAuthProvider session={session}>
+            <Providers>
+              {children}
+            </Providers>
+            </NextAuthProvider>
+          <SignOut />
+          <Toaster position='bottom-right' />
       </body>
     </html>
   )

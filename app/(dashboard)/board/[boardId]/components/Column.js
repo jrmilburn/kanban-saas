@@ -33,6 +33,7 @@ import {
 } from '@dnd-kit/sortable'
 import SortableCard from './SortableCard'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 
 export default function Column({ column, cards, setColumns, mutateBoard }) {
   const router = useRouter()
@@ -70,11 +71,13 @@ export default function Column({ column, cards, setColumns, mutateBoard }) {
           const idx = colArr.findIndex((c) => c.id === tempCard.id)
           if (idx !== -1) colArr[idx] = created
         })
+        toast.success(`Created new card, ${created.title}`);
       } catch (err) {
         // rollback
         mutateBoard((d) => {
           d[column.id] = d[column.id].filter((c) => c.id !== tempCard.id)
         })
+        toast.error(`Could not create new card, ${created.title}`)
         router.refresh()
       }
     })
@@ -98,10 +101,12 @@ export default function Column({ column, cards, setColumns, mutateBoard }) {
       })
       try {
         await renameColumn({ columnId: column.id, title })
+        toast.success(`${column.title} renamed to ${title}`)
       } catch (err) {
         mutateBoard((d) => {
           d[column.id].title = column.title
         })
+        toast.error(`${column.title} could not be renamed`)
         router.refresh()
       }
     })
@@ -118,18 +123,17 @@ export default function Column({ column, cards, setColumns, mutateBoard }) {
       })
       try {
         await deleteColumn({ columnId: column.id })
+        toast.success(`${column.title} deleted successfully`)
       } catch (err) {
         mutateBoard((d) => {
           d[column.id] = backup
           d[column.id].title = column.title
         })
+        toast.error(`${column.title} could not be deleted`)
         router.refresh()
       }
     })
   }
-
-  console.log('CARDS', cards);
-
   return (
     <div
       ref={setNodeRef}

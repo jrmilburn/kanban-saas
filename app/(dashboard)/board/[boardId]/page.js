@@ -21,5 +21,9 @@ export default async function BoardPage({ params }) {
      } },
   })
 
-  return <KanbanBoard board={board} />
+  return (
+    <div className='w-full h-full flex items-center justify-center'>
+      <KanbanBoard board={board} />
+    </div>
+  )
 }

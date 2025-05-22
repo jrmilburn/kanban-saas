@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 
 /**
  * Props
@@ -46,9 +47,11 @@ export default function AddColumnDialog({ boardId, mutateBoard }) {
           d[col.id] = []
           delete d[tempId]
         })
+        toast.success("New column created successfully")
       } catch (err) {
         /* rollback & hard refresh */
         mutateBoard((d) => { delete d[tempId] })
+        toast.error("Unable to create new column")
         router.refresh()
       }
     })

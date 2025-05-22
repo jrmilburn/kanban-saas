@@ -17,9 +17,6 @@ jobs:
         with:
           node-version: 20
       - run: npm ci
-      - run: npx prisma migrate deploy
-        env:
-          DATABASE_URL: postgresql://joemilburn:password@localhost:5432/kanban?schema=public
       - run: npm run build
       - run: npx playwright install --with-deps
         env:
