@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { deleteBoard } from "@/app/actions/board"
 
 export default function BoardCard({ board }) {
   const router = useRouter()
@@ -26,13 +27,7 @@ export default function BoardCard({ board }) {
     setIsDeleting(true)
 
     try {
-      const response = await fetch(`/api/board/${board.id}`, {
-        method: "DELETE",
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to delete board")
-      }
+      await deleteBoard({ boardId: board.id })
 
       toast.success("Board deleted successfully")
       setDeleteOpen(false)

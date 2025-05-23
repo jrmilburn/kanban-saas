@@ -30,3 +30,32 @@ export async function createBoard({ workspaceId, title}) {
     revalidatePath('/boards');
     redirect(`/board/${board.id}`);
 }
+
+export async function deleteBoard({boardId}) {
+  const session = await getServerSession(authOptions)
+  if (!session) redirect('/login')
+
+  // Get all columns for the board
+  const columns = await prisma.column.findMany({
+    where: { boardId }
+  })
+
+  // Get all column IDs
+  const columnIds = columns.map(col => col.id)
+
+  // Perform the deletion in a transaction
+  await prisma.$transaction([
+    // Delete all cards in these columns
+    prisma.card.deleteMany({
+      where: { columnId: { in: columnIds } }
+    }),
+    // Delete all columns in this board
+    prisma.column.deleteMany({
+      where: { boardId }
+    }),
+    // Delete the board itself
+    prisma.board.delete({
+      where: { id: boardId }
+    })
+  ])
+}
