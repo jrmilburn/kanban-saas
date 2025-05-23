@@ -2,9 +2,13 @@
 import { NextResponse } from 'next/server'
 import { getWebSocketServer } from '../../../api/ws/route'
 import { prisma } from '../../../../lib/prisma'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '../../auth/[...nextauth]/route'
 
 export async function POST(req) {
   const { cardId, oldColumnId,destColumnId, newOrder } = await req.json()
+
+  const session = await getServerSession(authOptions);
 
   // 1) update DB exactly as before
   await prisma.$transaction([
@@ -35,10 +39,10 @@ export async function POST(req) {
   if (wss) {
     for (const sock of wss.clients) {
       if (sock.readyState === sock.OPEN) {
-        sock.send(JSON.stringify({ type: 'CARD_MOVED', payload, boardId: newCard.column.boardId }))
+        sock.send(JSON.stringify({ type: 'CARD_MOVED', payload, boardId: newCard.column.boardId, username: session.user.name }))
       }
     }
   }
 
-  return NextResponse.json({ success: true, payload })
+  return NextResponse.json({ success: true, payload, username: session.user.name })
 }

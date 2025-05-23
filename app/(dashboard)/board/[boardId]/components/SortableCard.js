@@ -47,8 +47,9 @@ export default function SortableCard({ card, columnId, mutateBoard }) {
         d[columnId] = d[columnId].filter(c => c.id !== card.id)
       })
       try {
-        await deleteCard({ cardId: card.id })
-        toast.success(`${card.title} deleted successfully`);
+        await fetch(`/api/card/${card.id}/delete`, {
+          method: 'DELETE'
+        })
 
       } catch (err) {
         // rollback
@@ -69,8 +70,12 @@ export default function SortableCard({ card, columnId, mutateBoard }) {
         if (t) t.title = newTitle
       })
       try {
-        await renameCard({ cardId: card.id, newTitle: newTitle })
-        toast.success(`${card.title} renamed successfully`)
+        await fetch(`/api/card/${card.id}/edit`, {
+          method: 'PATCH',
+          body: JSON.stringify({
+            newTitle: newTitle
+          })
+        })
       } catch (err) {
         mutateBoard(d => {
           const t = d[columnId].find(c => c.id === card.id)

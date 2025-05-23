@@ -53,25 +53,15 @@ export default function Column({ column, cards, setColumns, mutateBoard }) {
     setCardTitle('')
 
     startCreate(async () => {
-      // optimistic push
-      const tempCard = {
-        id: 'temp-' + Date.now(),
-        title,
-        order: cards.length,
-        columnId: column.id,
-      }
-      mutateBoard((d) => {
-        d[column.id].push(tempCard)
-      })
 
       try {
-        const created = await createCard({ columnId: column.id, title })
-        mutateBoard((d) => {
-          const colArr = d[column.id]
-          const idx = colArr.findIndex((c) => c.id === tempCard.id)
-          if (idx !== -1) colArr[idx] = created
+        await fetch('/api/card/create', {
+          method: 'POST',
+          body: JSON.stringify({
+            columnId: column.id, title
+          })
         })
-        toast.success(`Created new card, ${created.title}`);
+
       } catch (err) {
         // rollback
         mutateBoard((d) => {

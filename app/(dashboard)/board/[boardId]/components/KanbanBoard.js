@@ -25,11 +25,9 @@ export default function Board({ board }) {
   /* ---------- build initial column → cards map ---------- */
 
   useBoardSocket(board.id, msg => {
-    if (msg.type !== 'CARD_MOVED') return
+    if (msg.type === 'CARD_MOVED') {
     const { id, oldColumnId, destColumnId, newOrder } = msg.payload
-
-    console.log(oldColumnId);
-    console.log(destColumnId);
+    const { username } = msg
 
     mutateBoard(draft => {
       // remove
@@ -43,7 +41,40 @@ export default function Board({ board }) {
       // insert
       draft[destColumnId].splice(newOrder, 0, moved)
     })
-  })
+
+    toast.success(`Card moved by ${username}`)
+
+    } else if (msg.type === 'CARD_CREATED') {
+      const { id, columnId, order, title } = msg.payload
+      const { username } = msg
+      mutateBoard(draft => {
+        // ensure array exists
+        if (!draft[columnId]) draft[columnId] = []
+        // insert at the correct index
+        draft[columnId].splice(order, 0, { id, columnId, order, title })
+      })
+      toast.success(`"${title}" created by ${username}`)
+      } else if (msg.type === 'CARD_DELETED') {
+      const { id, columnId } = msg.payload
+      const { username } = msg
+
+      mutateBoard(draft => {
+        draft[columnId] = draft[columnId].filter(c => c.id !== id)
+      })
+
+      toast.success(`Card deleted by ${username}`)
+    } else if (msg.type === 'CARD_RENAMED') {
+        const { id, columnId, newTitle } = msg.payload
+        const { username } = msg
+
+        mutateBoard(draft => {
+          const card = draft[columnId].find(c => c.id === id)
+          if (card) card.title = newTitle
+        })
+
+        toast.success(`Card renamed by ${username}`)
+          }
+        })
 
   const initialCards = useMemo(() => {
     const map = {}
@@ -107,11 +138,12 @@ export default function Board({ board }) {
     setColumns((p) => ({ ...p, [srcCol]: srcArr, [dstCol]: dstArr }))
 
     try {
-      await fetch('/api/card/move', {
+      const response = await fetch('/api/card/move', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cardId: active.id, oldColumnId: srcCol,destColumnId: dstCol, newOrder: insertIdx, }),
       })
+
     } catch {
       toast.error('Move failed — reloading')
     }
