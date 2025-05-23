@@ -97,6 +97,9 @@ model Board {
   workspace   WorkSpace @relation(fields: [workspaceId], references: [id])
   workspaceId String
   Column      Column[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
 }
 
 model Column {
