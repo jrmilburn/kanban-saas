@@ -19,9 +19,32 @@ import Column from './Column'
 import AddColumnDialog from './AddColumn'
 import { toast } from 'sonner'
 import { moveCard } from '@/app/actions/card'
+import useBoardSocket from '@/lib/useWs'
 
 export default function Board({ board }) {
   /* ---------- build initial column → cards map ---------- */
+
+  useBoardSocket(board.id, msg => {
+    if (msg.type !== 'CARD_MOVED') return
+    const { id, oldColumnId, destColumnId, newOrder } = msg.payload
+
+    console.log(oldColumnId);
+    console.log(destColumnId);
+
+    mutateBoard(draft => {
+      // remove
+      const idx = draft[oldColumnId].findIndex(c => c.id === id)
+      const [moved] = draft[oldColumnId].splice(idx, 1)
+
+      // update metadata
+      moved.columnId = destColumnId
+      moved.order = newOrder
+
+      // insert
+      draft[destColumnId].splice(newOrder, 0, moved)
+    })
+  })
+
   const initialCards = useMemo(() => {
     const map = {}
     board.Column.forEach((c) => (map[c.id] = c.Card))
@@ -84,10 +107,10 @@ export default function Board({ board }) {
     setColumns((p) => ({ ...p, [srcCol]: srcArr, [dstCol]: dstArr }))
 
     try {
-      await moveCard({
-        cardId: active.id,
-        destColumnId: dstCol,
-        newOrder: insertIdx,
+      await fetch('/api/card/move', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cardId: active.id, oldColumnId: srcCol,destColumnId: dstCol, newOrder: insertIdx, }),
       })
     } catch {
       toast.error('Move failed — reloading')

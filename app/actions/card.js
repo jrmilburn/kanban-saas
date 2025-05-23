@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "../api/auth/[...nextauth]/route"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
+import { getWebSocketServer } from "../api/ws/route"
 
 export async function moveCard({ cardId, destColumnId, newOrder }) {
     await prisma.$transaction([
@@ -24,18 +25,28 @@ export async function moveCard({ cardId, destColumnId, newOrder }) {
 
     const existing = await prisma.card.findUnique({
         where: { id: cardId },
-        select: { boardId: true, columnId: true },
+        select: { columnId: true },
     })
 
-      broadcast(existing.boardId, {
-          type: 'CARD_MOVED',
-          payload: {
-            id: cardId,
-            destColumnId,
-            oldColumnId: existing.columnId,
-            newOrder,
-          },
-        })
+    const payload = {
+      id:            cardId,
+      oldColumnId:   existing.columnId,
+      destColumnId,
+      newOrder,
+    }
+
+    // broadcast to all connected clients
+    const wss = getWebSocketServer()
+    if (wss) {
+      // ws.Server.clients is a Set of WebSocket
+      for (const socket of wss.clients) {
+        if (socket.readyState === socket.OPEN) {
+          socket.send(JSON.stringify({ type: 'CARD_MOVED', payload }))
+        }
+      }
+    }
+
+    return payload
 }
 
 export async function createCard({ columnId, title }) {

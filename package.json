@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "prepare": "husky install next-ws patch",
+    "prepare": "next-ws patch",
     "format": "husky format"
   },
   "dependencies": {
