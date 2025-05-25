@@ -94,10 +94,6 @@ export default function Column({ column, cards, mutateBoard }) {
     e.preventDefault()
     start(async () => {
       setDeleteOpen(false)
-      const backup = cards
-      mutateBoard((d) => {
-        delete d[column.id]
-      })
       try {
         await fetch(`/api/column/${column.id}/delete`, {
           method: "DELETE",

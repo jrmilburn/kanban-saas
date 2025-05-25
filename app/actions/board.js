@@ -5,7 +5,6 @@ import { authOptions } from "../api/auth/[...nextauth]/route"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { prisma } from "../../lib/prisma"
-import { toast } from "sonner"
 
 export async function createBoard({ workspaceId, title}) {
     const session = await getServerSession(authOptions);
@@ -25,10 +24,7 @@ export async function createBoard({ workspaceId, title}) {
         }
     })
 
-    toast.success(`${board.title} created`)
-
-    revalidatePath('/boards');
-    redirect(`/board/${board.id}`);
+    return board;
 }
 
 export async function deleteBoard({boardId}) {

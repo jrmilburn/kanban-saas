@@ -1,30 +1,31 @@
-import './globals.css'            // <-- your global styles
-import NextAuthProvider from '@/lib/SessionProvider'
-import { getServerSession } from 'next-auth'
-import { authOptions } from './api/auth/[...nextauth]/route'
-import SignOut from './signout'
-import { Toaster } from 'sonner'
-import Providers from './providers'
+import "./globals.css"
+import NextAuthProvider from "@/lib/SessionProvider"
+import { getServerSession } from "next-auth"
+import { authOptions } from "./api/auth/[...nextauth]/route"
+import { Toaster } from "sonner"
+import Providers from "./providers"
+import Header from "../components/Header"
 
-export const metadata = { title: 'Kanban SaaS' }
+export const metadata = { title: "Kanban SaaS" }
 
 export default async function RootLayout({ children }) {
-  // grab the initial session on the server
-
-  const session = await getServerSession(authOptions);
-  console.log(session);
+  const session = await getServerSession(authOptions)
 
   return (
     <html lang="en">
-      <body className='w-full h-screen'>
-        
-          <NextAuthProvider session={session}>
-            <Providers>
-              {children}
-            </Providers>
-            </NextAuthProvider>
-          <SignOut />
-          <Toaster position='bottom-right' />
+      <body className="w-full h-screen bg-gray-50">
+        <NextAuthProvider session={session}>
+          <Providers>
+            <div className="flex flex-col h-full">
+              {/* Global Header */}
+              {session && <Header session={session} />}
+
+              {/* Main Content */}
+              <main className="flex-1 overflow-hidden">{children}</main>
+            </div>
+          </Providers>
+        </NextAuthProvider>
+        <Toaster position="bottom-right" />
       </body>
     </html>
   )

@@ -34,7 +34,7 @@ export default function CreateBoardDialog({ workspaceId, trigger }) {
 
     try {
       const board = await createBoard({ workspaceId, title: title.trim() })
-      toast.success("Board created successfully")
+      toast.success(`Board created successfully`);
       setOpen(false)
       setTitle("")
 

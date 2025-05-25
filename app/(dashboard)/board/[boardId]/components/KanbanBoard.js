@@ -165,7 +165,7 @@ export default function Board({ board }) {
         onDragEnd={handleDragEnd}
       >
         <div className="flex-1 overflow-x-auto overscroll-x-contain touch-pan-x pb-6 pt-2 px-2 md:px-4">
-          <div className="flex gap-4 min-h-[calc(100vh-120px)] pb-4">
+          <div className="flex gap-4 min-h-[calc(100vh-180px)] pb-4">
             {board.Column.map((col) => (
               <Column key={col.id} column={col} cards={columns[col.id]} mutateBoard={mutateBoard} />
             ))}
