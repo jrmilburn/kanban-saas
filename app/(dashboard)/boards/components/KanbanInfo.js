@@ -66,7 +66,7 @@ export default function KanbanInfo() {
                   <div>
                     <h5 className="font-medium text-gray-800 text-sm">Columns</h5>
                     <p className="text-xs text-gray-600 mt-1">
-                      Represent different stages like "To Do", "In Progress", "Done"
+                      Represent different stages like &quot;To Do&quot;, &quot;In Progress&quot;, &quot;Done&quot;
                     </p>
                   </div>
                 </div>
@@ -124,7 +124,7 @@ export default function KanbanInfo() {
               </h4>
               <ol className="text-sm text-gray-600 space-y-1">
                 <li>1. Create a new board for your project</li>
-                <li>2. Add columns like "To Do", "In Progress", "Review", "Done"</li>
+                <li>2. Add columns like &quot;To Do&quot;, &quot;In Progress&quot;, &quot;Review&quot;, &quot;Done&quot;</li>
                 <li>3. Create cards for each task or item</li>
                 <li>4. Move cards between columns as work progresses</li>
                 <li>5. Collaborate with your team in real-time</li>

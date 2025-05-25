@@ -49,7 +49,7 @@ export default function BoardsList({ boards, workspaceId }) {
         {searchTerm && (
           <div className="mt-2 text-sm text-gray-600">
             {filteredBoards.length === 0 ? (
-              <span>No boards found matching "{searchTerm}"</span>
+              <span>No boards found matching &quot;{searchTerm}&quot;</span>
             ) : (
               <span>
                 {filteredBoards.length} board{filteredBoards.length !== 1 ? "s" : ""} found
@@ -81,7 +81,7 @@ export default function BoardsList({ boards, workspaceId }) {
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">No boards found</h3>
           <p className="text-gray-500 max-w-md mb-6">
-            No boards match your search for "{searchTerm}". Try a different search term or create a new board.
+            No boards match your search for &quot;{searchTerm}&quot;. Try a different search term or create a new board.
           </p>
           <div className="flex gap-3">
             <button
