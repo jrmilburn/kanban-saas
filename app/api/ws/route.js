@@ -4,7 +4,7 @@ export function SOCKET(client, request, server, context) {
     console.log('✅ Stored WebSocketServer on globalThis')
   }
 
-    const url = new URL(request.url, 'http://localhost')
+    const url = new URL(request.url, 'https://kanban.joemilburn.com.au')
   const boardId = url.searchParams.get('boardId')
   console.log('client connectd on ', boardId);
 
