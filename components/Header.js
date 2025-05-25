@@ -15,7 +15,7 @@ export default function Header({ session }) {
             <div className="h-8 w-8 rounded-lg bg-blue-600 text-white flex items-center justify-center">
               <LayoutGrid className="h-4 w-4" />
             </div>
-            <span className="font-semibold text-gray-900 hidden sm:block">kanban.joemilburn</span>
+            <span className="font-semibold text-gray-900 hidden sm:block">Kanban.jm</span>
           </Link>
 
           {/* User Menu */}

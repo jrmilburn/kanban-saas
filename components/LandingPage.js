@@ -47,7 +47,7 @@ export default function LandingPage() {
               <div className="h-8 w-8 rounded-lg bg-blue-600 text-white flex items-center justify-center">
                 <LayoutGrid className="h-4 w-4" />
               </div>
-              <span className="font-bold text-xl text-gray-900">Kanban.joemilburn</span>
+              <span className="font-bold text-xl text-gray-900">Kanban.jm</span>
             </div>
 
             {/* Navigation */}
@@ -270,7 +270,7 @@ export default function LandingPage() {
               <div className="h-6 w-6 rounded bg-blue-600 text-white flex items-center justify-center">
                 <LayoutGrid className="h-3 w-3" />
               </div>
-              <span className="font-semibold text-white">Kanban.joemilburn</span>
+              <span className="font-semibold text-white">Kanban.jm</span>
             </div>
             <div className="flex items-center gap-6">
               <Link href="/login" className="text-sm text-gray-400 hover:text-white transition-colors">
